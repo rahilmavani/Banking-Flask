@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banking System</title>
+    <title>Banker's Registration</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,13 +26,20 @@
             color: #333;
             margin-bottom: 20px;
         }
-        .button-container {
+        form {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            flex-direction: column; /* Adjusted to column layout */
         }
-        .button-container button {
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
             padding: 10px 20px;
             font-size: 16px;
             border: none;
@@ -41,22 +48,25 @@
             color: #fff;
             cursor: pointer;
             transition: background-color 0.3s;
-            margin: 10px; /* Adjusted margin for spacing */
         }
-        .button-container button:hover {
+        button:hover {
             background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Welcome to Our Banking System</h2>
-        <div class="button-container">
-            <a href="/register"><button>Register</button></a>
-            <a href="/login"><button>Login</button></a>
-            <a href="/banker_reg"><button>Banker's Registration</button></a> <!-- Added Banker's Registration button -->
-            <a href="/banker_login"><button>Banker's Login</button></a> <!-- Added Banker's Login button -->
-        </div>
+        <h2>Login</h2>
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <form action="/banker_reg" method="post">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Banker's Registration</button>
+        </form>
     </div>
 </body>
 </html>

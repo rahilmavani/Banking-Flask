@@ -102,5 +102,13 @@ def logout():
     session.pop("user_id", None)
     return redirect("/")
 
+@app.route("/banker_reg", methods = ["GET", "POST"])
+def banker_reg():
+    return render_template("banker_reg.html")
+
+@app.route("/banker_login", methods = ["GET", "POST"])
+def banker_login():
+    return render_template("banker_login.html")
+
 if __name__ == "__main__":
     app.run(debug = True)
