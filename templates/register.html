@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Register</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,36 +52,25 @@
         button:hover {
             background-color: #0056b3;
         }
+        p.error {
+            color: red;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Welcome to Your Dashboard</h2>
-        <div class="info-container">
-            <p>Account Holder Name: {{ user.username }}</p>
-            <p>Account Number: {{ user.account_number }}</p>
-            <p>Account Balance: ${{ user.balance }}</p>
-        </div>
+        <h2>Register</h2>
         {% if error %}
         <p class="error">{{ error }}</p>
         {% endif %}
-        <form action="/dashboard" method="post">
-            <label for="amount">Amount:</label>
-            <input type="number" id="amount" name="amount" required>
-            <button type="submit" name="action" value="deposit">Deposit</button>
-            <button type="submit" name="action" value="withdraw">Withdraw</button>
-        </form>
-        <form action="/transfer" method="post">
-            <label for="to_username">To Username:</label>
-            <input type="text" id="to_username" name="to_username" required>
-            <label for="transfer_amount">Amount:</label>
-            <input type="number" id="transfer_amount" name="amount" required>
-            <button type="submit">Transfer</button>
-        </form>
-        <form action="/logout" method="post">
-            <button type="submit">Logout</button>
+        <form action="/register" method="post">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" required><br>
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required><br>
+            <button type="submit">Register</button>
         </form>
     </div>
 </body>
 </html>
-
