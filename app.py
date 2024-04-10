@@ -19,6 +19,22 @@ db.execute(""" CREATE TABLE IF NOT EXISTS users(
                     balance NUMERIC DEFAULT 0)
            """)
 
+db.execute(""" CREATE TABLE IF NOT EXISTS banker
+               ( id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                passkey TEXT UNIQUE NOT NULL)
+               """)
+db.execute(""" CREATE TABLE IF NOT EXISTS passkeys
+                (keys TEXT UNIQUE NOT NULL)
+           """)
+keys_to_insert = ["secret101", "universe42"]
+
+for key in keys_to_insert:
+    existing_key = db.execute("SELECT keys FROM passkeys WHERE keys = ?", key)
+    if not existing_key:
+        db.execute("INSERT INTO passkeys (keys) VALUES (?)", key)
+
 def generate_account_number():
     while True:
         account_number = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 8))
@@ -102,13 +118,49 @@ def logout():
     session.pop("user_id", None)
     return redirect("/")
 
-@app.route("/banker_reg", methods = ["GET", "POST"])
+@app.route("/banker_reg", methods=["GET", "POST"])
 def banker_reg():
-    return render_template("banker_reg.html")
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        passkey = request.form.get("passkey")
+
+        check = db.execute("SELECT username FROM banker WHERE username = ?", username)
+        if check:
+            return render_template("banker_reg.html", error="Account already registered.")
+
+        passkey_check = db.execute("SELECT * FROM passkeys WHERE keys = ?", passkey)
+        if not passkey_check:
+            return render_template("banker_reg.html", error="Invalid passkey.")
+
+        db.execute("INSERT INTO banker (username, password, passkey) VALUES (?, ?, ?)", username, password, passkey)
+        return redirect("/")
+    else:
+        return render_template("banker_reg.html")
+
 
 @app.route("/banker_login", methods = ["GET", "POST"])
 def banker_login():
-    return render_template("banker_login.html")
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        banker = db.execute("SELECT * FROM banker WHERE username = ? AND password = ?", username, password)
+        if len(banker) == 1:
+            session["banker_id"] = banker[0]["id"]
+            return redirect("/banker_dashboard")
+        else:
+            return render_template("banker_login.html", error = "Invalid username or password")
+    else:
+        return render_template("banker_login.html", error = "")
+
+@app.route("/banker_dashboard")
+def banker_dashboard():
+    banker_id = session.get("banker_id")
+    if banker_id == None:
+        redirect ("/")
+    users = db.execute("SELECT * FROM users")
+    return render_template("banker_dashboard.html", users=users)
+
 
 if __name__ == "__main__":
     app.run(debug = True)
