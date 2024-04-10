@@ -80,7 +80,21 @@ def dashboard():
                 return redirect("/dashboard")
             else:
                 return redirect("/dashboard")
+        elif request.form["action"] == "transfer":
+            amount = int(request.form.get("transfer_amount"))
+            balance = int(user["balance"])
+            to_username = request.form.get("to_username") 
 
+            recipient = db.execute("SELECT * FROM users WHERE username = ?", to_username)
+            if not recipient:
+                return render_template("dashboard.html", error="Recipient username does not exist.")
+
+            if balance >= amount:
+                db.execute("UPDATE users SET balance = balance - ? WHERE id = ?", amount, user_id)
+                db.execute("UPDATE users SET balance = balance + ? WHERE username = ?", amount, to_username)
+                return redirect("/dashboard")
+            else:
+                return render_template("dashboard.html", error="Insufficient Balance.")
     return render_template("dashboard.html", user = user)
 
 @app.route("/logout", methods = ["GET", "POST"])

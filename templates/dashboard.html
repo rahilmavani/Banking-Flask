@@ -33,6 +33,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin-bottom: 10px; /* Added margin-bottom for spacing */
         }
         input {
             padding: 10px;
@@ -51,6 +52,7 @@
             color: #fff;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin-bottom: 10px; /* Added margin-bottom for spacing */
         }
         button:hover {
             background-color: #0056b3;
@@ -77,6 +79,13 @@
             <input type="number" id="amount" name="amount" required>
             <button type="submit" name="action" value="deposit">Deposit</button>
             <button type="submit" name="action" value="withdraw">Withdraw</button>
+        </form>
+        <form action="/dashboard" method="post"> <!-- Added form for transferring funds -->
+            <label for="to_username">Transfer to Username:</label>
+            <input type="text" id="to_username" name="to_username" required>
+            <label for="transfer_amount">Amount:</label>
+            <input type="number" id="transfer_amount" name="transfer_amount" required>
+            <button type="submit" name="action" value="transfer">Transfer</button>
         </form>
         <form action="/logout" method="post">
             <button type="submit">Logout</button>
