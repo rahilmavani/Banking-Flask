@@ -65,6 +65,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px; /* Added margin-top for spacing */
         }
         th, td {
             padding: 10px;
@@ -76,6 +77,7 @@
 <body>
     <div class="container">
         <h2>Welcome to Banker Dashboard</h2>
+        <!-- Table to display user information -->
         <table>
             <thead>
                 <tr>
@@ -96,6 +98,11 @@
                 {% endfor %}
             </tbody>
         </table>
+        
+        <!-- Button to view transactions -->
+        <form action="/view_transactions" method="get">
+            <button type="submit">View Transactions</button>
+        </form>
     </div>
 </body>
 </html>

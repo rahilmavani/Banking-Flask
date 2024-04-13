@@ -2,6 +2,8 @@ from flask import Flask, render_template, redirect, session, request
 from flask_session import Session
 from cs50 import SQL
 import random, string
+from pytz import timezone
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -28,6 +30,17 @@ db.execute(""" CREATE TABLE IF NOT EXISTS banker
 db.execute(""" CREATE TABLE IF NOT EXISTS passkeys
                 (keys TEXT UNIQUE NOT NULL)
            """)
+
+db.execute(""" CREATE TABLE IF NOT EXISTS transactions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    from_account TEXT NOT NULL,
+                    to_account TEXT NOT NULL,
+                    amount NUMERIC NOT NULL,
+                    details TEXT
+              )""")
+
+
 keys_to_insert = ["secret101", "universe42"]
 
 for key in keys_to_insert:
@@ -83,6 +96,15 @@ def dashboard():
     user = db.execute("SELECT * FROM users WHERE id = ?", user_id)[0]
 
     if request.method == "POST":
+        if request.form["action"] == "transfer":
+            amount = int(request.form.get("transfer_amount"))
+            from_account = user["account_number"]
+            to_username = request.form.get("to_username")
+            to_user = db.execute("SELECT * FROM users WHERE username = ?", to_username)
+            to_account = to_user[0]["account_number"]
+            details = request.form.get("details", "")
+            db.execute("INSERT INTO transactions (from_account, to_account, amount, details) VALUES (?, ?, ?, ?)",
+                       from_account, to_account, amount, details)
         if request.form["action"] == "deposit":
             amount = int(request.form.get("amount"))
             db.execute("UPDATE users SET balance = balance + ? WHERE id = ?", amount, user_id)
@@ -160,6 +182,30 @@ def banker_dashboard():
         redirect ("/")
     users = db.execute("SELECT * FROM users")
     return render_template("banker_dashboard.html", users=users)
+
+
+
+# Assuming the 'timestamp' column in your database is stored in UTC
+def convert_to_ist(timestamp):
+    utc_time = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+    utc_time = timezone('UTC').localize(utc_time)
+    ist_time = utc_time.astimezone(timezone('Asia/Kolkata'))
+    return ist_time.strftime('%Y-%m-%d %H:%M:%S')
+
+@app.route("/view_transactions")
+def view_transactions():
+    transactions = db.execute("""
+        SELECT transactions.id, transactions.timestamp,
+               users_from.username AS from_username, users_to.username AS to_username,
+               transactions.from_account, transactions.to_account, transactions.amount
+        FROM transactions
+        INNER JOIN users AS users_from ON transactions.from_account = users_from.account_number
+        INNER JOIN users AS users_to ON transactions.to_account = users_to.account_number
+    """)
+    for transaction in transactions:
+        transaction['timestamp'] = convert_to_ist(transaction['timestamp'])
+    return render_template("view_transactions.html", transactions=transactions)
+
 
 
 if __name__ == "__main__":
